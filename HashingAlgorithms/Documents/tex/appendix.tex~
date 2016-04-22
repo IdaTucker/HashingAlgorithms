@@ -1,0 +1,223 @@
+\begin{algorithm}[H]
+\caption{MD5(x)}
+\label{algo:md5}
+\begin{algorithmic}[1]
+\State{\textbf{external procedures} MD5-\textsc{pad}}
+\State{let us call $RC\lbrack 64\rbrack$ the array of rotation constants.}
+\State{let us call $AC\lbrack 64\rbrack$ the array of additional constants.}
+\State{$RC\lbrack 0{\ldots}15\rbrack \gets \{7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22\}$}
+\State{$RC\lbrack 16{\ldots}31\rbrack \gets \{5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20\}$}
+\State{$RC\lbrack 32{\ldots}47\rbrack \gets \{4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23\}$}
+\State{$RC\lbrack 48{\ldots}63\rbrack \gets \{6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21\}$}
+
+\For{$i \gets 0$ to $63$ }
+\State{$AC\lbrack i\rbrack \gets \lfloor 2^{32} \vert \sin(t+1)\vert \rfloor$}
+\EndFor{}
+
+\Comment{Initialise variables}
+\State{$a_0 \gets \mbox{0x67452301}$}
+\State{$b_0 \gets \mbox{0xefcdab89}$}
+\State{$c_0 \gets \mbox{0x98badcfe}$}
+\State{$d_0 \gets \mbox{0x10325476}$}
+
+\State{$M_1 \vert \vert M_2 \vert \vert \ldots \vert \vert M_N \gets$ MD5-\textsc{pad} (x), where each  $M_i$ is a 512-bit block.}
+
+\Comment{Loop through all $N$ message blocs to hash.}
+\For{$i \gets 1$ to $N$ }
+\State{let us call $W\lbrack 16\rbrack$ the array of 32-bit words in $M_i$. }
+\State{$M_i = W\lbrack 0\rbrack \vert \vert W\lbrack 1\rbrack \vert \vert \ldots vert \vert W\lbrack 15\rbrack$.}
+
+\Comment{Initial values}
+\State{$a \gets a_0$}
+\State{$b \gets b_0$}
+\State{$c \gets c_0$}
+\State{$d \gets d_0$}
+
+\Comment{Iterate through the 64 steps of the compression function}
+\For{$t \gets 0$ to $63$ }
+\If{$0\le i \le 15$}
+\Comment{$f_t$ is F and $W_t$ is $m_t$}
+\State{$f \gets (b \wedge c) \oplus (\overline{b} \wedge d)$}
+\State{$g \gets t$}
+
+\ElsIf{$16\le i \le 31$}
+\Comment{$f_t$ is G and $W_t$ is $m_{1+5t}$}
+\State{$f \gets (d \wedge b) \oplus (\overline{d} \wedge c)$}
+\State{$g \gets (5*t+1) \mod{16}$}
+
+\ElsIf{$32\le i \le 47$}
+\Comment{$f_t$ is H and $W_t$ is $m_{5+3t}$}
+\State{$f \gets b \oplus c \oplus d$}
+\State{$g \gets (3*t+5) \mod{16}$}
+
+\ElsIf{$48\le i \le 63$}
+\Comment{$f_t$ is I and $W_t$ is $m_{7t}$}
+\State{$f \gets c \oplus (b \vee \overline{d})$}
+\State{$g \gets (7*t) \mod{16}$}
+\EndIf{}
+
+\algstore{bkbreak}
+\end{algorithmic}
+\end{algorithm}
+
+
+\dots
+
+
+\begin{algorithm}[H]
+\begin{algorithmic}[1]
+\algrestore{bkbreak}
+
+\State{$temp \gets d$}
+\State{$d \gets c$}
+\State{$c \gets b$}
+\State{$b \gets ((a + f + AC\lbrack t \rbrack + W\lbrack g \rbrack)) +b $}
+\State{$a \gets temp$}
+\EndFor{}
+
+\Comment{Once all the steps have been computed, the resulting state words are added to the input intermediate hash values}
+\State{$a_0 \gets a_0 + a$}
+\State{$b_0 \gets b_0 + b$}
+\State{$c_0 \gets c_0 + c$}
+\State{$d_0 \gets d_0 + d$}
+
+\EndFor{}
+
+\Return{$digest \gets a_0 \vert \vert b_0 \vert \vert c_0 \vert \vert d_0 \vert \vert H_4$}
+
+\Comment{Return output as little endian}
+\end{algorithmic}
+\end{algorithm}
+
+Return to MD5 section:~\ref{section:md5}
+
+\clearpage
+
+\begin{algorithm}[H]
+\caption{SHA-1(x)}
+\label{algo:sha1}
+\begin{algorithmic}[1]
+\State{\textbf{external procedures} SHA-1-\textsc{pad}}
+\State{\textbf{global variables} $K_0, {\ldots},K_{79}$}
+\State{$y \gets$ SHA-1-\textsc{pad} (x)}
+\State{let us call $y = M_1 \vert \vert M_2 \vert \vert \ldots \vert \vert M_N$, where each  $M_i$ is a 512-bit block.}
+\State{$H_0 \gets \mbox{0x67452301}$}
+\State{$H_1 \gets \mbox{0xefcdab89}$}
+\State{$H_2 \gets \mbox{0x98badcfe}$}
+\State{$H_3 \gets \mbox{0x10325476}$}
+\State{$H_4 \gets \mbox{0xc3d2e1f0}$}
+\For{$i \gets 1$ to $N$ }
+\State{let us call $M_i = W_0 \vert \vert W_1 \vert \vert \ldots \vert \vert W_{15}$, where each $W_j$ is a 32-bit word.}
+
+\For{$t \gets 16$ to $79$ }
+\State{$W_t \gets RL(W_{t-3}\oplus W_{t-8}\oplus W_{t-14}\oplus W_{t-16}, 1)$}
+\EndFor{} 
+
+\State{$A \gets H_0$}
+\State{$B \gets H_1$}
+\State{$C \gets H_2$}
+\State{$D \gets H_3$}
+\State{$E \gets H_4$}
+
+\For{$t \gets 16$ to $79$ }
+\State{$tmp \gets RL(A, 5) + f_t(B,C,D) + E + W_t + K_t$}
+\State{$E \gets D$}
+\State{$D \gets C$}
+\State{$C \gets RL(B,30)$}
+\State{$B \gets A$}
+\State{$A \gets tmp$}
+\EndFor{}
+
+\State{$H_0 \gets H_0 + A$}
+\State{$H_1 \gets H_1 + B$}
+\State{$H_2 \gets H_2 + C$}
+\State{$H_3 \gets H_3 + D$}
+\State{$H_4 \gets H_4 + E$}
+\EndFor{}
+
+\Return{$H_0 \vert \vert H_1 \vert \vert H_2 \vert \vert H_3 \vert \vert H_4$}
+\end{algorithmic}
+\end{algorithm}
+
+Return to SHA-1 section:~\ref{section:sha1}
+
+\clearpage
+
+\begin{algorithm}[H]
+\caption{The sponge construction \textsc{sponge}[f, pad, r]}
+\label{algo:sponge}
+
+\begin{algorithmic}[1]
+\Require{$r < b$}
+
+\Ensure{$Z = sponge(M, l)$ with $M \in \mathbb{Z}_2^∗$, $l \in \mathbb{N}^{*+}$ and $Z ∈ \mathbb{Z}_2^l$}
+
+\State{$P = M\vert \vert pad\lbrack r\rbrack (\vert M\vert )$ }
+\State{$s = 0^b$}
+
+\For{$i \gets 0$ to $\vert P\vert_r − 1$ }
+\State{$s = s \oplus (P_i\vert \vert0^{b−r})$}
+\State{$s = f(s)$}
+\EndFor{}
+
+\State{$Z = \lfloor s\rfloor_r$}
+
+\While{$\vert Z\vert_rr < l$}
+\State{$s = f(s)$}
+\State{$Z = Z\vert \vert \lfloor s\rfloor _r$ }
+\EndWhile{}
+
+\Return{$\lfloor Z\rfloor _l$}
+\end{algorithmic}
+\end{algorithm}
+
+Return to the sponge construction section:~\ref{section:sponge}
+
+
+
+\begin{algorithm}[H]
+\caption{The absorbing function \textsc{absorb}[f, r]}
+\label{algo:absorb}
+\begin{algorithmic}[1]
+\Require{$r < b$}
+\Ensure{$s=absorb(P)$ with $P \in \mathbb{Z}_2^∗$ and $s \in \mathbb{Z}_2^b$}
+
+\State{$s = 0^b$}
+
+\For{$i = 0$ to $\vert P\vert_r − 1$}
+\State{$s = s \oplus (P_i\vert \vert0^{b−r})$}
+\State{$s = f(s)$ }
+\EndFor{}
+
+\Return{$s$}
+\end{algorithmic}
+\end{algorithm}
+
+Return to the auxiliary \textsc{absorb} function section:~\ref{section:aux}
+
+
+\begin{algorithm}[H]
+\caption{The squeezing function \textsc{squeeze}[f, r]}
+\label{algo:squeeze}
+
+\begin{algorithmic}[1]
+\Require{$r < b$}
+
+\Ensure{$Z=squeeze(s,l)$ with $s \in \mathbb{Z}_2^b$, $l \in \mathbb{N}^{*+}$ and $Z \in \mathbb{Z}_2^l$}
+
+\State{$Z = \lfloor s\rfloor_r$}
+
+
+\While{$\vert Z\vert_rr < l$}
+\State{$s = f(s)$}
+\State{$Z = Z\vert \vert \lfloor s\rfloor _r$ }
+\EndWhile{}
+
+\Return{$\lfloor Z\rfloor _l$}
+
+\end{algorithmic}
+\end{algorithm}
+
+Return to the auxiliary \textsc{squeeze} function section:~\ref{section:aux}
+
+

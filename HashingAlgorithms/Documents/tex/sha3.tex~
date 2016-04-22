@@ -1,0 +1,38 @@
+\section{SHA-3}
+\subsection{Overview}
+The \textsc{SHA-3} functions are instances of the sponge construction \textsc{sponge}[$f$,pad,r] in which the underlying permutation $f$ is $\textsc{Keccak}$-p$\lbrack b, n_r \rbrack$, where the bit-length $b$ is fixed to $1600$ and the number of rounds is set to $24$.
+
+The padding rule used by \textsc{SHA-3} is multi-rate padding, as described in Section~\ref{section:padding}.
+
+This leaves two variable parameters: the desired number of bits $l$ to be output by the sponge construction, and the bitrate $r$.
+Seeing as we have $b=r+c=1600$ where $c$ is the capacity, fixing the capacity is equivalent to fixing the bitrate.
+
+
+The \textsc{SHA-3} family defines six functions, for the different values of $l$ and $c$.
+
+Four of these are hash functions (which output a fixed length digest) named \textsc{SHA3}-$l(M)$. The four possible values for $l$ are 224, 256, 384 and 512, and in each case the capacity is fixed to $c=2\times l$. Each of these functions append a two-bit suffix to the message M.
+Thus with the notations used:
+$$ \textsc{SHA3}-l(M) =\textsc{sponge}[\textsc{Keccak}-p\lbrack 1600, 24 \rbrack, pad10∗1,1600-2\times l](M\vert \vert 01,l) $$
+
+
+The two other \textsc{SHA-3} functions are \emph{extendable-output functions}.
+
+\begin{defn}
+  An extendable-output function (XOF) is a function on bit strings in which the output can be extended to any desired length.
+\end{defn}
+
+\textsc{SHAKE128}$(M,l)$ (for a capacity of 256 bits, and a chosen output length $l$) and SHAKE256 (for a capacity of 512 bits, and a chosen output length $l$) are the first XOFs that NIST has standardized.
+Both functions append a four-bit suffix to the message M.
+Thus:
+\begin{equation}
+  \begin{aligned}
+    \textsc{SHAKE128}(M,l) & =\textsc{sponge}[\textsc{Keccak}-p\lbrack 1600, 24 \rbrack, pad10∗1,1600-256](M\vert \vert 1111,l) \\
+    \textsc{SHAKE256}(M,l) & =\textsc{sponge}[\textsc{Keccak}-p\lbrack 1600, 24 \rbrack, pad10∗1,1600-512](M\vert \vert 1111,l) \\
+\end{aligned}
+\end{equation}
+
+\subsection{Algorithm And Implementation}
+We have chosen to implement \textsc{SHA3}-224.
+Therefore our fixed parameters are:
+$l=224$, $c=448$, $r=1152$, $b=1600$ and $n_r=24$.
+$$ \textsc{SHA3}-224(M) =\textsc{sponge}[\textsc{Keccak}-p\lbrack 1600, 24 \rbrack, pad10∗1,1152](M\vert \vert 01,l) $$
